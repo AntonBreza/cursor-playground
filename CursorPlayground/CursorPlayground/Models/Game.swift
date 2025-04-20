@@ -8,8 +8,10 @@ class Game: ObservableObject {
     @Published private(set) var isGameOver = false
     
     private var timer: Timer?
+    private let mapSize: Int
     
     init(mapSize: Int = 100) {
+        self.mapSize = mapSize
         let map = MapGenerator.generateMap(size: mapSize)
         self.map = map
         self.character = Character(
@@ -25,6 +27,30 @@ class Game: ObservableObject {
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             self?.update()
         }
+    }
+    
+    func restart() {
+        // Stop current game
+        timer?.invalidate()
+        timer = nil
+        
+        // Reset game state
+        isGameOver = false
+        gameLog.removeAll()
+        
+        // Generate new map and character
+        let newMap = MapGenerator.generateMap(size: mapSize)
+        self.map = newMap
+        self.character = Character(
+            startPosition: Position(x: mapSize / 2, y: mapSize / 2),
+            initialEnergy: 1000,
+            map: newMap
+        )
+        
+        log("Game restarted! Character energy: \(character.energy)")
+        
+        // Start new game
+        start()
     }
     
     private func update() {

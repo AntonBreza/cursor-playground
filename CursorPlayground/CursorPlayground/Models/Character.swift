@@ -19,7 +19,11 @@ class Character {
         let visibleCells = map.getCellsInRange(center: position, range: visionRange)
         let resources = visibleCells.filter { $0.type == .resource }
         
-        guard !resources.isEmpty else { return false }
+        if resources.isEmpty {
+            // No resources in range, move randomly
+            moveRandomly()
+            return true
+        }
         
         // Find closest resource
         let closestResource = resources.min { a, b in
@@ -41,6 +45,33 @@ class Character {
         }
         
         return true
+    }
+    
+    private func moveRandomly() {
+        // Define possible moves (up, right, down, left)
+        let possibleMoves = [
+            (dx: 0, dy: -1), // up
+            (dx: 1, dy: 0),  // right
+            (dx: 0, dy: 1),  // down
+            (dx: -1, dy: 0)  // left
+        ]
+        
+        // Filter valid moves (those that stay within map bounds)
+        let validMoves = possibleMoves.filter { move in
+            let newX = position.x + move.dx
+            let newY = position.y + move.dy
+            return newX >= 0 && newX < map.size && newY >= 0 && newY < map.size
+        }
+        
+        // If we have valid moves, choose one randomly
+        if let randomMove = validMoves.randomElement() {
+            let newPosition = Position(
+                x: position.x + randomMove.dx,
+                y: position.y + randomMove.dy
+            )
+            position = newPosition
+            energy -= 5 // Movement cost
+        }
     }
     
     private func moveTowards(target: Position) -> Position {
