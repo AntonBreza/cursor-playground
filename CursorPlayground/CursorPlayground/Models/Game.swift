@@ -4,7 +4,7 @@ import Combine
 class Game: ObservableObject {
     @Published private(set) var map: Map
     @Published private(set) var character: Character
-    @Published private(set) var gameLog: [String] = []
+    @Published private(set) var gameLog: [LogEntry] = []
     @Published private(set) var isGameOver = false
     
     private var timer: Timer?
@@ -20,7 +20,7 @@ class Game: ObservableObject {
             map: map
         )
         
-        log("Game started! Character energy: \(character.energy)")
+        log("Game started! Character energy: \(character.energy)", type: .gameState)
     }
     
     func start() {
@@ -47,7 +47,7 @@ class Game: ObservableObject {
             map: newMap
         )
         
-        log("Game restarted! Character energy: \(character.energy)")
+        log("Game restarted! Character energy: \(character.energy)", type: .gameState)
         
         // Start new game
         start()
@@ -57,14 +57,21 @@ class Game: ObservableObject {
         guard !isGameOver else { return }
         
         if character.move() {
-            log("Character moved to (\(character.position.x), \(character.position.y)). Energy: \(character.energy)")
+            log("Character moved to (\(character.position.x), \(character.position.y))", type: .gameState)
+            
+            if let currentCell = map.cell(at: character.position), currentCell.type == .resource {
+                log("✨ Resource collected! Total resources: \(character.resourcesCollected)", type: .resource)
+                log("Collection energy cost: 1", type: .energy)
+            }
+            
+            log("Movement energy cost: 5", type: .energy)
         } else {
-            log("No resources in range. Game Over!")
+            log("No resources in range. Game Over!", type: .gameState)
             endGame()
         }
         
         if !character.isAlive {
-            log("Character ran out of energy. Game Over!")
+            log("Character ran out of energy. Game Over!", type: .gameState)
             endGame()
         }
     }
@@ -73,11 +80,11 @@ class Game: ObservableObject {
         isGameOver = true
         timer?.invalidate()
         timer = nil
-        log("Final score: \(character.resourcesCollected) resources collected")
+        log("Final score: \(character.resourcesCollected) resources collected", type: .gameState)
     }
     
-    private func log(_ message: String) {
-        gameLog.append(message)
+    private func log(_ message: String, type: LogType) {
+        gameLog.append(LogEntry(message: message, type: type))
         if gameLog.count > 10 {
             gameLog.removeFirst()
         }

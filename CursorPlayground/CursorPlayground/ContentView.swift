@@ -37,10 +37,15 @@ struct ContentView: View {
                     .font(.headline)
                     .padding(.horizontal)
                 
-                List(game.gameLog, id: \.self) { log in
-                    Text(log)
-                        .font(.system(.body, design: .monospaced))
+                List {
+                    ForEach(game.gameLog.reversed()) { log in
+                        Text(log.message)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(log.type.color)
+                            .padding(.vertical, 2)
+                    }
                 }
+                .listStyle(PlainListStyle())
             }
             .frame(maxHeight: .infinity)
         }
