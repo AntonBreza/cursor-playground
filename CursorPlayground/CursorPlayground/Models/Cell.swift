@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum CellType {
     case empty
@@ -9,10 +10,14 @@ struct Cell: Identifiable {
     let id = UUID()
     let position: Position
     var type: CellType
+    let rarity: CellRarity
+    let backgroundColor: Color
     
-    init(position: Position, type: CellType = .empty) {
+    init(position: Position, type: CellType = .empty, rarity: CellRarity? = nil, backgroundColor: Color = .clear) {
         self.position = position
         self.type = type
+        self.rarity = rarity ?? CellRarity.allCases.randomElement()!
+        self.backgroundColor = backgroundColor
     }
 }
 

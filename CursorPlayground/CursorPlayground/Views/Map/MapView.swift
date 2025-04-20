@@ -15,14 +15,35 @@ struct MapView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 ScrollView([.horizontal, .vertical], showsIndicators: true) {
-                    ZStack(alignment: .center) {
-                        GridLinesView(visibleRange: viewModel.visibleRange, cellSize: viewModel.cellSize)
-                        mainGrid
+                    ZStack(alignment: .topLeading) {
+                        Color.black.opacity(0.1) // Background color for spacing visibility
+                        
+                        // Main grid
+                        let columns = Array(repeating: GridItem(.fixed(viewModel.cellSize), spacing: viewModel.cellSpacing), count: viewModel.visibleRange.xRange.count)
+                        
+                        LazyVGrid(columns: columns, spacing: viewModel.cellSpacing) {
+                            ForEach(viewModel.visibleRange.yRange, id: \.self) { y in
+                                ForEach(viewModel.visibleRange.xRange, id: \.self) { x in
+                                    if let cell = viewModel.game.map.cell(at: Position(x: x, y: y)) {
+                                        CellView(
+                                            cell: cell,
+                                            x: x,
+                                            y: y,
+                                            isPlayerCell: x == game.character.position.x && y == game.character.position.y
+                                        )
+                                        .id("\(x),\(y)")
+                                    }
+                                }
+                            }
+                        }
+                        .padding(viewModel.cellSpacing)
+                        
+                        // Player overlay
                         PlayerOverlayView(position: viewModel.getPlayerPosition())
                     }
                     .frame(
-                        width: CGFloat(viewModel.visibleRange.xRange.count) * viewModel.cellSize,
-                        height: CGFloat(viewModel.visibleRange.yRange.count) * viewModel.cellSize
+                        width: CGFloat(viewModel.visibleRange.xRange.count) * (viewModel.cellSize + viewModel.cellSpacing) + viewModel.cellSpacing,
+                        height: CGFloat(viewModel.visibleRange.yRange.count) * (viewModel.cellSize + viewModel.cellSpacing) + viewModel.cellSpacing
                     )
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -36,24 +57,5 @@ struct MapView: View {
         }
         .frame(height: UIScreen.main.bounds.width * 0.7)
         .padding(0)
-    }
-    
-    private var mainGrid: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.fixed(viewModel.cellSize), spacing: 0), count: viewModel.visibleRange.xRange.count), spacing: 0) {
-            ForEach(viewModel.visibleRange.yRange, id: \.self) { y in
-                ForEach(viewModel.visibleRange.xRange, id: \.self) { x in
-                    if let cell = viewModel.game.map.cell(at: Position(x: x, y: y)) {
-                        CellView(
-                            cell: cell,
-                            x: x,
-                            y: y,
-                            isPlayerCell: x == game.character.position.x && y == game.character.position.y
-                        )
-                        .frame(width: viewModel.cellSize, height: viewModel.cellSize)
-                        .id("\(x),\(y)")
-                    }
-                }
-            }
-        }
     }
 } 

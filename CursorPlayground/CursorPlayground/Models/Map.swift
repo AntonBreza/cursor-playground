@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 class Map {
     private(set) var cells: [[Cell]]
@@ -23,11 +24,15 @@ class Map {
         return cells[position.y][position.x]
     }
     
-    func updateCell(at position: Position, type: CellType) {
+    func updateCell(at position: Position, type: CellType, backgroundColor: Color = .clear) {
         guard position.x >= 0 && position.x < size && position.y >= 0 && position.y < size else {
             return
         }
-        cells[position.y][position.x].type = type
+        cells[position.y][position.x] = Cell(
+            position: position,
+            type: type,
+            backgroundColor: backgroundColor
+        )
     }
     
     func getCellsInRange(center: Position, range: Int) -> [Cell] {

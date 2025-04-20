@@ -10,38 +10,43 @@ struct CellView: View {
     let y: Int
     let isPlayerCell: Bool
     
+    private let mainIconSize: CGFloat = 24
+    private let secondaryIconSize: CGFloat = 16
+    
     // MARK: - Body
     
     var body: some View {
         ZStack {
-            cellBackground
-            resourceIcon
-            coordinatesLabel
+            // Background
+            Rectangle()
+                .fill(cell.backgroundColor)
+                .frame(width: 50, height: 50)
+            
+            // Top-leading icon
+            Image(systemName: "star.fill")
+                .foregroundColor(cell.rarity.color)
+                .font(.system(size: secondaryIconSize))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.leading, 4)
+                .padding(.top, 4)
+            
+            // Center icon (larger)
+            if cell.type == .resource {
+                Image(systemName: "leaf.fill")
+                    .foregroundColor(cell.rarity.color)
+                    .font(.system(size: mainIconSize))
+            }
+            
+            // Coordinates label
+            Text("(\(x),\(y))")
+                .font(.system(size: 10))
+                .foregroundColor(.gray)
+                .position(x: 12, y: 12)
         }
-    }
-    
-    // MARK: - View Components
-    
-    /// Background for the cell
-    private var cellBackground: some View {
-        Rectangle()
-            .fill(cell.type == .empty ? Color.gray.opacity(0.1) : Color.green.opacity(0.2))
-    }
-    
-    /// Resource icon if the cell contains a resource
-    @ViewBuilder
-    private var resourceIcon: some View {
-        if cell.type == .resource {
-            Image(systemName: "leaf.fill")
-                .foregroundColor(.green)
-        }
-    }
-    
-    /// Coordinates label showing the cell's position
-    private var coordinatesLabel: some View {
-        Text("(\(x),\(y))")
-            .font(.system(size: 8))
-            .foregroundColor(.gray)
-            .position(x: 10, y: 10)
+        .frame(width: 50, height: 50)
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(cell.rarity.color, lineWidth: cell.rarity.borderWidth)
+        )
     }
 } 

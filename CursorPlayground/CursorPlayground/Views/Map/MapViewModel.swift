@@ -2,7 +2,8 @@ import SwiftUI
 
 class MapViewModel: ObservableObject {
     @ObservedObject var game: Game
-    let cellSize: CGFloat = 40
+    let cellSize: CGFloat = 50
+    let cellSpacing: CGFloat = 8
     
     init(game: Game) {
         self.game = game
@@ -14,7 +15,8 @@ class MapViewModel: ObservableObject {
         
         // Calculate the number of cells that can fit in the screen width
         let screenWidth = UIScreen.main.bounds.width
-        let cellsInWidth = Int(screenWidth / cellSize)
+        let totalCellSize = cellSize + cellSpacing
+        let cellsInWidth = Int(screenWidth / totalCellSize)
         let halfWidth = cellsInWidth / 2
         
         let minX = max(0, centerX - halfWidth)
@@ -26,8 +28,9 @@ class MapViewModel: ObservableObject {
     }
     
     func getPlayerPosition() -> (x: CGFloat, y: CGFloat) {
-        let x = CGFloat(game.character.position.x - visibleRange.xRange.lowerBound) * cellSize + cellSize/2
-        let y = CGFloat(game.character.position.y - visibleRange.yRange.lowerBound) * cellSize + cellSize/2
+        let totalCellSize = cellSize + cellSpacing
+        let x = CGFloat(game.character.position.x - visibleRange.xRange.lowerBound) * totalCellSize + cellSize/2
+        let y = CGFloat(game.character.position.y - visibleRange.yRange.lowerBound) * totalCellSize + cellSize/2
         return (x, y)
     }
 } 
