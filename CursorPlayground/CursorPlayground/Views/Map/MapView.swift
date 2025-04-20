@@ -21,7 +21,10 @@ struct MapView: View {
                             mainGrid
                             PlayerOverlayView(position: viewModel.getPlayerPosition())
                         }
-                        .frame(width: CGFloat(viewModel.visibleSize) * viewModel.cellSize, height: CGFloat(viewModel.visibleSize) * viewModel.cellSize)
+                        .frame(
+                            width: CGFloat(viewModel.visibleRange.xRange.count) * viewModel.cellSize,
+                            height: CGFloat(viewModel.visibleRange.yRange.count) * viewModel.cellSize
+                        )
                     }
                 }
                 .onChange(of: game.character.position) { newPosition in
@@ -34,7 +37,7 @@ struct MapView: View {
     }
     
     private var mainGrid: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.fixed(viewModel.cellSize), spacing: 0), count: viewModel.visibleSize), spacing: 0) {
+        LazyVGrid(columns: Array(repeating: GridItem(.fixed(viewModel.cellSize), spacing: 0), count: viewModel.visibleRange.xRange.count), spacing: 0) {
             ForEach(viewModel.visibleRange.yRange, id: \.self) { y in
                 ForEach(viewModel.visibleRange.xRange, id: \.self) { x in
                     if let cell = viewModel.game.map.cell(at: Position(x: x, y: y)) {

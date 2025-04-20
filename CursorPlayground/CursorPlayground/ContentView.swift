@@ -12,26 +12,22 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Top half - Map View with Restart Button
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        game.restart()
-                    }) {
-                        Label("Restart", systemImage: "arrow.clockwise")
-                            .padding(8)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(8)
-                    }
-                    .padding(.horizontal)
-                }
-                
-                MapView(game: game)
-                    .frame(maxHeight: .infinity)
-            }
+            // Map View
+            MapView(game: game)
+                .frame(maxHeight: .infinity)
             
-            // Bottom half - Game Log
+            // Restart Button
+            Button(action: {
+                game.restart()
+            }) {
+                Label("Restart", systemImage: "arrow.clockwise")
+                    .padding(8)
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(8)
+            }
+            .padding(.vertical, 8)
+            
+            // Game Log
             VStack(alignment: .leading, spacing: 8) {
                 Text("Game Log")
                     .font(.headline)
