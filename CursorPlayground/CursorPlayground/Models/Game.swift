@@ -20,7 +20,7 @@ class Game: ObservableObject {
             map: map
         )
         
-        log("Game started! Character energy: \(character.energy)", type: .gameState)
+        log("Game started", type: .gameState)
     }
     
     func start() {
@@ -59,20 +59,20 @@ class Game: ObservableObject {
         let moveResult = character.move()
         
         if moveResult.moved {
-            log("Character moved to (\(character.position.x), \(character.position.y))", type: .gameState)
-            log("Movement energy cost: 5", type: .energy)
-            
+            var message = "Moved to (\(character.position.x), \(character.position.y))"
             if moveResult.collectedResource {
-                log("✨ Resource collected! Total resources: \(character.resourcesCollected)", type: .resource)
-                log("Collection energy cost: 1", type: .energy)
+                message += " • Collected resource"
+                log(message, type: .collect, value: character.resourcesCollected)
+            } else {
+                log(message, type: .move, value: -5)
             }
         } else {
-            log("No resources in range. Game Over!", type: .gameState)
+            log("No resources in range", type: .gameState)
             endGame()
         }
         
         if !character.isAlive {
-            log("Character ran out of energy. Game Over!", type: .gameState)
+            log("Out of energy", type: .gameState)
             endGame()
         }
     }
@@ -81,11 +81,11 @@ class Game: ObservableObject {
         isGameOver = true
         timer?.invalidate()
         timer = nil
-        log("Final score: \(character.resourcesCollected) resources collected", type: .gameState)
+        log("Final score: \(character.resourcesCollected)", type: .gameState)
     }
     
-    private func log(_ message: String, type: LogType) {
-        gameLog.append(LogEntry(message: message, type: type))
+    private func log(_ message: String, type: LogType, value: Int? = nil) {
+        gameLog.append(LogEntry(message: message, type: type, value: value))
         if gameLog.count > 10 {
             gameLog.removeFirst()
         }

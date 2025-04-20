@@ -40,12 +40,23 @@ struct ContentView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 4) {
                         ForEach(game.gameLog.reversed()) { log in
-                            Text(log.message)
-                                .font(.system(size: 12, design: .monospaced))
-                                .foregroundColor(log.type.color)
-                                .padding(.vertical, 2)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal)
+                            HStack(spacing: 8) {
+                                Image(systemName: log.type.symbol)
+                                    .foregroundColor(log.type.color)
+                                
+                                Text(log.message)
+                                    .font(.system(size: 12, design: .monospaced))
+                                    .foregroundColor(.primary)
+                                
+                                if let value = log.value {
+                                    Text("\(value > 0 ? "+" : "")\(value)")
+                                        .font(.system(size: 12, design: .monospaced))
+                                        .foregroundColor(log.type.color)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
                         }
                     }
                 }
