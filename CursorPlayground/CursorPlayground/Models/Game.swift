@@ -56,15 +56,16 @@ class Game: ObservableObject {
     private func update() {
         guard !isGameOver else { return }
         
-        if character.move() {
+        let moveResult = character.move()
+        
+        if moveResult.moved {
             log("Character moved to (\(character.position.x), \(character.position.y))", type: .gameState)
+            log("Movement energy cost: 5", type: .energy)
             
-            if let currentCell = map.cell(at: character.position), currentCell.type == .resource {
+            if moveResult.collectedResource {
                 log("✨ Resource collected! Total resources: \(character.resourcesCollected)", type: .resource)
                 log("Collection energy cost: 1", type: .energy)
             }
-            
-            log("Movement energy cost: 5", type: .energy)
         } else {
             log("No resources in range. Game Over!", type: .gameState)
             endGame()

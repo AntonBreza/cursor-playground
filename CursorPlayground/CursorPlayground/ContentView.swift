@@ -32,22 +32,27 @@ struct ContentView: View {
             }
             
             // Bottom half - Game Log
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text("Game Log")
                     .font(.headline)
                     .padding(.horizontal)
                 
-                List {
-                    ForEach(game.gameLog.reversed()) { log in
-                        Text(log.message)
-                            .font(.system(size: 12, design: .monospaced))
-                            .foregroundColor(log.type.color)
-                            .padding(.vertical, 2)
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 4) {
+                        ForEach(game.gameLog.reversed()) { log in
+                            Text(log.message)
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundColor(log.type.color)
+                                .padding(.vertical, 2)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal)
+                        }
                     }
                 }
-                .listStyle(PlainListStyle())
+                .frame(maxHeight: 200)
             }
-            .frame(maxHeight: .infinity)
+            .frame(maxWidth: .infinity)
+            .background(Color(.systemBackground))
         }
         .onAppear {
             game.start()

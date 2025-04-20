@@ -15,14 +15,14 @@ class Character {
         self.resourcesCollected = 0
     }
     
-    func move() -> Bool {
+    func move() -> (moved: Bool, collectedResource: Bool) {
         let visibleCells = map.getCellsInRange(center: position, range: visionRange)
         let resources = visibleCells.filter { $0.type == .resource }
         
         if resources.isEmpty {
             // No resources in range, move randomly
             moveRandomly()
-            return true
+            return (true, false)
         }
         
         // Find closest resource
@@ -42,9 +42,10 @@ class Character {
             map.updateCell(at: position, type: .empty)
             energy -= 1 // Collection cost
             resourcesCollected += 1
+            return (true, true)
         }
         
-        return true
+        return (true, false)
     }
     
     private func moveRandomly() {
