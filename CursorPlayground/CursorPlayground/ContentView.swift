@@ -9,40 +9,58 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var game = Game()
+    @State private var showingCharacterScreen = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Map View
-            MapView(game: game)
-                .padding(0)
-                .border(Color.red, width: 1)
-                .safeAreaInset(edge: .top) { Color.clear }
-            
-            // Character Status View
-            CharacterStatusView(game: game)
-                .border(Color.blue, width: 1)
-            
-            // Game Log
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Game Log")
-                    .font(.headline)
-                    .padding(.horizontal)
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Map View
+                MapView(game: game)
+                    .padding(0)
+                    .border(Color.red, width: 1)
+                    .safeAreaInset(edge: .top) { Color.clear }
                 
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 4) {
-                        ForEach(game.gameLog.reversed()) { log in
-                            LogMessageView(entry: log)
+                // Character Status View
+                CharacterStatusView(game: game, onCharacterTap: {
+                    showingCharacterScreen = true
+                })
+                    .border(Color.blue, width: 1)
+                
+                // Game Log
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Game Log")
+                        .font(.headline)
+                        .padding(.horizontal)
+                    
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 4) {
+                            ForEach(game.gameLog.reversed()) { log in
+                                LogMessageView(entry: log)
+                            }
                         }
+                        .padding(.bottom, 16)
                     }
-                    .padding(.bottom, 16)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemBackground))
+                .border(Color.green, width: 1)
+                .safeAreaInset(edge: .bottom) { Color.clear }
+            }
+            .ignoresSafeArea(edges: .top)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        game.restart()
+                    }) {
+                        Label("Restart", systemImage: "arrow.clockwise")
+                    }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground))
-            .border(Color.green, width: 1)
-            .safeAreaInset(edge: .bottom) { Color.clear }
+            .sheet(isPresented: $showingCharacterScreen) {
+                CharacterScreen(game: game)
+            }
         }
-        .ignoresSafeArea(edges: .top)
         .onAppear {
             game.start()
         }

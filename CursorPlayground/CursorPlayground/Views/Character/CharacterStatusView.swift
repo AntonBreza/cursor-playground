@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CharacterStatusView: View {
     @ObservedObject var game: Game
+    var onCharacterTap: () -> Void
     
     var body: some View {
         HStack(spacing: 16) {
@@ -46,11 +47,9 @@ struct CharacterStatusView: View {
             
             Spacer()
             
-            // Restart Button
-            Button(action: {
-                game.restart()
-            }) {
-                Label("Restart", systemImage: "arrow.clockwise")
+            // Character Button
+            Button(action: onCharacterTap) {
+                Label("Character", systemImage: "person.fill")
                     .padding(8)
                     .background(Color.blue.opacity(0.1))
                     .cornerRadius(8)
