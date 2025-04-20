@@ -15,7 +15,7 @@ struct MapView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 ScrollView([.horizontal, .vertical], showsIndicators: true) {
-                    ZStack {
+                    ZStack(alignment: .center) {
                         GridLinesView(visibleRange: viewModel.visibleRange, cellSize: viewModel.cellSize)
                         mainGrid
                         PlayerOverlayView(position: viewModel.getPlayerPosition())
@@ -26,6 +26,7 @@ struct MapView: View {
                     )
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
                 .onChange(of: game.character.position) { newPosition in
                     withAnimation(.easeInOut(duration: 0.3)) {
                         scrollProxy.scrollTo("\(newPosition.x),\(newPosition.y)", anchor: .center)
@@ -34,6 +35,7 @@ struct MapView: View {
             }
         }
         .frame(height: UIScreen.main.bounds.width * 0.7)
+        .padding(0)
     }
     
     private var mainGrid: some View {

@@ -14,6 +14,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             // Map View
             MapView(game: game)
+                .padding(0)
                 .border(Color.red, width: 1)
                 .safeAreaInset(edge: .top) { Color.clear }
             
