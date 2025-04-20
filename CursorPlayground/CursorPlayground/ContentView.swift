@@ -14,18 +14,12 @@ struct ContentView: View {
         VStack(spacing: 0) {
             // Map View
             MapView(game: game)
-                .frame(maxHeight: .infinity)
+                .border(Color.red, width: 1)
+                .safeAreaInset(edge: .top) { Color.clear }
             
-            // Restart Button
-            Button(action: {
-                game.restart()
-            }) {
-                Label("Restart", systemImage: "arrow.clockwise")
-                    .padding(8)
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(8)
-            }
-            .padding(.vertical, 8)
+            // Character Status View
+            CharacterStatusView(game: game)
+                .border(Color.blue, width: 1)
             
             // Game Log
             VStack(alignment: .leading, spacing: 8) {
@@ -39,12 +33,14 @@ struct ContentView: View {
                             LogMessageView(entry: log)
                         }
                     }
+                    .padding(.bottom, 16) // Add some padding at the bottom for better scrolling
                 }
-                .frame(maxHeight: 200)
             }
             .frame(maxWidth: .infinity)
             .background(Color(.systemBackground))
+            .border(Color.green, width: 1)
         }
+        .ignoresSafeArea(edges: .top)
         .onAppear {
             game.start()
         }

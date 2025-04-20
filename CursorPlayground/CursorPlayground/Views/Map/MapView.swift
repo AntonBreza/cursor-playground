@@ -14,19 +14,18 @@ struct MapView: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
-                ZStack {
-                    ScrollView([.horizontal, .vertical], showsIndicators: true) {
-                        ZStack {
-                            GridLinesView(visibleRange: viewModel.visibleRange, cellSize: viewModel.cellSize)
-                            mainGrid
-                            PlayerOverlayView(position: viewModel.getPlayerPosition())
-                        }
-                        .frame(
-                            width: CGFloat(viewModel.visibleRange.xRange.count) * viewModel.cellSize,
-                            height: CGFloat(viewModel.visibleRange.yRange.count) * viewModel.cellSize
-                        )
+                ScrollView([.horizontal, .vertical], showsIndicators: true) {
+                    ZStack {
+                        GridLinesView(visibleRange: viewModel.visibleRange, cellSize: viewModel.cellSize)
+                        mainGrid
+                        PlayerOverlayView(position: viewModel.getPlayerPosition())
                     }
+                    .frame(
+                        width: CGFloat(viewModel.visibleRange.xRange.count) * viewModel.cellSize,
+                        height: CGFloat(viewModel.visibleRange.yRange.count) * viewModel.cellSize
+                    )
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onChange(of: game.character.position) { newPosition in
                     withAnimation(.easeInOut(duration: 0.3)) {
                         scrollProxy.scrollTo("\(newPosition.x),\(newPosition.y)", anchor: .center)
@@ -34,6 +33,7 @@ struct MapView: View {
                 }
             }
         }
+        .frame(height: UIScreen.main.bounds.width * 0.7)
     }
     
     private var mainGrid: some View {
