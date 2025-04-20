@@ -56,19 +56,26 @@ class Game: ObservableObject {
     private func update() {
         guard !isGameOver else { return }
         
-        let moveResult = character.move()
+        let result = character.move()
         
-        if moveResult.moved {
+        if !result.changes.isEmpty {
             var message = "Moved to (\(character.position.x), \(character.position.y))"
             var changes: [LogChange] = []
             
-            // Always log energy consumption with energy type
-            changes.append(LogChange(type: .energy, value: -5))
-            
-            if moveResult.collectedResource {
-                message += " • Collected resource"
-                changes.append(LogChange(type: .collect, value: 1))
-                changes.append(LogChange(type: .energy, value: -1))
+            for change in result.changes {
+                switch change.type {
+                case .position:
+                    // Position is already in the message
+                    break
+                case .energy:
+                    changes.append(LogChange(type: .energy, value: change.value))
+                case .resources:
+                    message += " • Collected resource"
+                    changes.append(LogChange(type: .collect, value: change.value))
+                case .health:
+                    // Not implemented yet
+                    break
+                }
             }
             
             log(message, changes: changes)

@@ -6,6 +6,8 @@ class Character {
     private(set) var resourcesCollected: Int
     private let visionRange: Int
     private let map: Map
+    private let moveAction: MoveAction
+    private let collectAction: CollectAction
     
     init(startPosition: Position, initialEnergy: Int, map: Map, visionRange: Int = 2) {
         self.position = startPosition
@@ -13,89 +15,49 @@ class Character {
         self.map = map
         self.visionRange = visionRange
         self.resourcesCollected = 0
+        self.moveAction = MoveAction(map: map, visionRange: visionRange)
+        self.collectAction = CollectAction(map: map)
     }
     
-    func move() -> (moved: Bool, collectedResource: Bool) {
-        let visibleCells = map.getCellsInRange(center: position, range: visionRange)
-        let resources = visibleCells.filter { $0.type == .resource }
+    func move() -> ActionResult {
+        let moveResult = moveAction.execute(character: self)
+        let collectResult = collectAction.execute(character: self)
         
-        if resources.isEmpty {
-            // No resources in range, move randomly
-            moveRandomly()
-            return (true, false)
+        // Apply all changes from both actions
+        let allChanges = moveResult.changes + collectResult.changes
+        for change in allChanges {
+            switch change.type {
+            case .position:
+                // Position is already updated by the actions
+                break
+            case .energy:
+                energy += change.value
+            case .resources:
+                resourcesCollected += change.value
+            case .health:
+                // Not implemented yet
+                break
+            }
         }
         
-        // Find closest resource
-        let closestResource = resources.min { a, b in
-            a.position.distance(to: position) < b.position.distance(to: position)
-        }!
-        
-        // Move towards the resource
-        let newPosition = moveTowards(target: closestResource.position)
-        
-        // Update position and energy
-        position = newPosition
-        energy -= 5 // Movement cost
-        
-        // Collect resource if we're on it
-        if let currentCell = map.cell(at: position), currentCell.type == .resource {
-            map.updateCell(at: position, type: .empty)
-            energy -= 1 // Collection cost
-            resourcesCollected += 1
-            return (true, true)
-        }
-        
-        return (true, false)
-    }
-    
-    private func moveRandomly() {
-        // Define possible moves (up, right, down, left)
-        let possibleMoves = [
-            (dx: 0, dy: -1), // up
-            (dx: 1, dy: 0),  // right
-            (dx: 0, dy: 1),  // down
-            (dx: -1, dy: 0)  // left
-        ]
-        
-        // Filter valid moves (those that stay within map bounds)
-        let validMoves = possibleMoves.filter { move in
-            let newX = position.x + move.dx
-            let newY = position.y + move.dy
-            return newX >= 0 && newX < map.size && newY >= 0 && newY < map.size
-        }
-        
-        // If we have valid moves, choose one randomly
-        if let randomMove = validMoves.randomElement() {
-            let newPosition = Position(
-                x: position.x + randomMove.dx,
-                y: position.y + randomMove.dy
-            )
-            position = newPosition
-            energy -= 5 // Movement cost
-        }
-    }
-    
-    private func moveTowards(target: Position) -> Position {
-        var newX = position.x
-        var newY = position.y
-        
-        if target.x > position.x {
-            newX += 1
-        } else if target.x < position.x {
-            newX -= 1
-        }
-        
-        if target.y > position.y {
-            newY += 1
-        } else if target.y < position.y {
-            newY -= 1
-        }
-        
-        let newPosition = Position(x: newX, y: newY)
-        return map.cell(at: newPosition) != nil ? newPosition : position
+        return ActionResult(changes: allChanges)
     }
     
     var isAlive: Bool {
         return energy > 0
+    }
+    
+    // MARK: - Property Modifiers
+    
+    func updatePosition(_ newPosition: Position) {
+        position = newPosition
+    }
+    
+    func updateEnergy(_ delta: Int) {
+        energy += delta
+    }
+    
+    func updateResources(_ delta: Int) {
+        resourcesCollected += delta
     }
 } 
