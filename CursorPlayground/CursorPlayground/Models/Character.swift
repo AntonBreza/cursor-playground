@@ -20,8 +20,35 @@ class Character {
     }
     
     func move() -> ActionResult {
+        // First evaluate if we can perform the move action
         let moveResult = moveAction.execute(character: self)
+        let totalEnergyCost = moveResult.changes.filter { $0.type == .energy }.reduce(0) { $0 + $1.value }
+        
+        // If moving would make energy negative, don't move
+        if energy + totalEnergyCost < 0 {
+            return .empty()
+        }
+        
+        // Then evaluate if we can collect resources
         let collectResult = collectAction.execute(character: self)
+        let totalCollectEnergyCost = collectResult.changes.filter { $0.type == .energy }.reduce(0) { $0 + $1.value }
+        
+        // If collecting would make energy negative, only apply move changes
+        if energy + totalEnergyCost + totalCollectEnergyCost < 0 {
+            // Apply only move changes
+            for change in moveResult.changes {
+                switch change.type {
+                case .position:
+                    // Position is already updated by the action
+                    break
+                case .energy:
+                    energy += change.value
+                case .resources, .health:
+                    break
+                }
+            }
+            return moveResult
+        }
         
         // Apply all changes from both actions
         let allChanges = moveResult.changes + collectResult.changes

@@ -122,7 +122,6 @@ class CollectAction: CharacterAction {
     func execute(character: Character) -> ActionResult {
         if let currentCell = map.cell(at: character.position), currentCell.type == .resource {
             map.updateCell(at: character.position, type: .empty)
-            character.updateResources(1)
             
             return ActionResult(changes: [
                 .init(type: .resources, value: 1),
