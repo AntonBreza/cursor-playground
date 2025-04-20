@@ -28,11 +28,22 @@ class Map {
         guard position.x >= 0 && position.x < size && position.y >= 0 && position.y < size else {
             return
         }
+        let isVisited = cells[position.y][position.x].isVisited
         cells[position.y][position.x] = Cell(
             position: position,
             type: type,
-            backgroundColor: backgroundColor
+            backgroundColor: backgroundColor,
+            isVisited: isVisited
         )
+    }
+    
+    func markCellAsVisited(at position: Position) {
+        guard position.x >= 0 && position.x < size && position.y >= 0 && position.y < size else {
+            return
+        }
+        var cell = cells[position.y][position.x]
+        cell.isVisited = true
+        cells[position.y][position.x] = cell
     }
     
     func getCellsInRange(center: Position, range: Int) -> [Cell] {

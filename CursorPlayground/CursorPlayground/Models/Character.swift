@@ -29,6 +29,9 @@ class Character {
             return .empty()
         }
         
+        // Mark the new cell as visited
+        map.markCellAsVisited(at: position)
+        
         // Then evaluate if we can collect resources
         let collectResult = collectAction.execute(character: self)
         let totalCollectEnergyCost = collectResult.changes.filter { $0.type == .energy }.reduce(0) { $0 + $1.value }
