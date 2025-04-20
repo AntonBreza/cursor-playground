@@ -2,7 +2,7 @@ import SwiftUI
 
 class MapViewModel: ObservableObject {
     @ObservedObject var game: Game
-    let cellSize: CGFloat = 50
+    let cellSize: CGFloat = 60
     let cellSpacing: CGFloat = 8
     
     init(game: Game) {

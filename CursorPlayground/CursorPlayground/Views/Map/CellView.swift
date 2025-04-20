@@ -20,9 +20,9 @@ struct CellView: View {
             // Background
             Rectangle()
                 .fill(cell.backgroundColor)
-                .frame(width: 50, height: 50)
+                .frame(width: 60, height: 60)
             
-            // Top-leading icon
+            // Top-leading icon (secondary)
             Image(systemName: "star.fill")
                 .foregroundColor(cell.rarity.color)
                 .font(.system(size: secondaryIconSize))
@@ -30,11 +30,14 @@ struct CellView: View {
                 .padding(.leading, 4)
                 .padding(.top, 4)
             
-            // Center icon (larger)
+            // Bottom-trailing icon (main)
             if cell.type == .resource {
                 Image(systemName: "leaf.fill")
                     .foregroundColor(cell.rarity.color)
                     .font(.system(size: mainIconSize))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    .padding(.trailing, 4)
+                    .padding(.bottom, 4)
             }
             
             // Coordinates label
@@ -43,10 +46,10 @@ struct CellView: View {
                 .foregroundColor(.gray)
                 .position(x: 12, y: 12)
         }
-        .frame(width: 50, height: 50)
+        .frame(width: 60, height: 60)
         .overlay(
             RoundedRectangle(cornerRadius: 6)
-                .stroke(cell.rarity.color, lineWidth: cell.rarity.borderWidth)
+                .stroke(cell.rarity.color, lineWidth: cell.rarity.borderWidth / 2)
         )
     }
 } 
