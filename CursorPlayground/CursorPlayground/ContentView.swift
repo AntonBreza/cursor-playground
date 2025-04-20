@@ -17,14 +17,12 @@ struct ContentView: View {
                 // Map View
                 MapView(game: game)
                     .padding(0)
-                    .border(Color.red, width: 1)
                     .safeAreaInset(edge: .top) { Color.clear }
                 
                 // Character Status View
                 CharacterStatusView(game: game, onCharacterTap: {
                     showingCharacterScreen = true
                 })
-                    .border(Color.blue, width: 1)
                 
                 // Game Log
                 VStack(alignment: .leading, spacing: 8) {
@@ -43,7 +41,6 @@ struct ContentView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(.systemBackground))
-                .border(Color.green, width: 1)
                 .safeAreaInset(edge: .bottom) { Color.clear }
             }
             .ignoresSafeArea(edges: .top)

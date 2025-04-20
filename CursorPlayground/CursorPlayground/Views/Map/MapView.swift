@@ -49,9 +49,7 @@ struct MapView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .clipped()
                 .onChange(of: game.character.position) { newPosition in
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        scrollProxy.scrollTo("\(newPosition.x),\(newPosition.y)", anchor: .center)
-                    }
+                    scrollProxy.scrollTo("\(newPosition.x),\(newPosition.y)", anchor: .center)
                 }
             }
         }

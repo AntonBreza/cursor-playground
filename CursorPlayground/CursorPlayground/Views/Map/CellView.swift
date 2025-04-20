@@ -39,12 +39,6 @@ struct CellView: View {
                     .padding(.trailing, 4)
                     .padding(.bottom, 4)
             }
-            
-            // Coordinates label
-            Text("(\(x),\(y))")
-                .font(.system(size: 10))
-                .foregroundColor(.gray)
-                .position(x: 12, y: 12)
         }
         .frame(width: 60, height: 60)
         .overlay(

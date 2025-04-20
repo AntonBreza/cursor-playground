@@ -24,7 +24,7 @@ class Game: ObservableObject {
     }
     
     func start() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.update()
         }
     }
