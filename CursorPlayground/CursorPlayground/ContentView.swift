@@ -34,12 +34,13 @@ struct ContentView: View {
                             LogMessageView(entry: log)
                         }
                     }
-                    .padding(.bottom, 16) // Add some padding at the bottom for better scrolling
+                    .padding(.bottom, 16)
                 }
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemBackground))
             .border(Color.green, width: 1)
+            .safeAreaInset(edge: .bottom) { Color.clear }
         }
         .ignoresSafeArea(edges: .top)
         .onAppear {

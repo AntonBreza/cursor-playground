@@ -99,8 +99,5 @@ class Game: ObservableObject {
     
     private func log(_ message: String, changes: [LogChange]) {
         gameLog.append(LogEntry(message: message, changes: changes))
-        if gameLog.count > 10 {
-            gameLog.removeFirst()
-        }
     }
 } 
