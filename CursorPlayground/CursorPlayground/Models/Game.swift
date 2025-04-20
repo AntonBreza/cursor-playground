@@ -20,7 +20,7 @@ class Game: ObservableObject {
             map: map
         )
         
-        log("Game started", type: .gameState)
+        log("Game started", changes: [])
     }
     
     func start() {
@@ -47,7 +47,7 @@ class Game: ObservableObject {
             map: newMap
         )
         
-        log("Game restarted! Character energy: \(character.energy)", type: .gameState)
+        log("Game restarted! Character energy: \(character.energy)", changes: [])
         
         // Start new game
         start()
@@ -60,19 +60,25 @@ class Game: ObservableObject {
         
         if moveResult.moved {
             var message = "Moved to (\(character.position.x), \(character.position.y))"
+            var changes: [LogChange] = []
+            
+            // Always log energy consumption with energy type
+            changes.append(LogChange(type: .energy, value: -5))
+            
             if moveResult.collectedResource {
                 message += " • Collected resource"
-                log(message, type: .collect, value: character.resourcesCollected)
-            } else {
-                log(message, type: .move, value: -5)
+                changes.append(LogChange(type: .collect, value: 1))
+                changes.append(LogChange(type: .energy, value: -1))
             }
+            
+            log(message, changes: changes)
         } else {
-            log("No resources in range", type: .gameState)
+            log("No resources in range", changes: [])
             endGame()
         }
         
         if !character.isAlive {
-            log("Out of energy", type: .gameState)
+            log("Out of energy", changes: [])
             endGame()
         }
     }
@@ -81,11 +87,11 @@ class Game: ObservableObject {
         isGameOver = true
         timer?.invalidate()
         timer = nil
-        log("Final score: \(character.resourcesCollected)", type: .gameState)
+        log("Final score: \(character.resourcesCollected)", changes: [])
     }
     
-    private func log(_ message: String, type: LogType, value: Int? = nil) {
-        gameLog.append(LogEntry(message: message, type: type, value: value))
+    private func log(_ message: String, changes: [LogChange]) {
+        gameLog.append(LogEntry(message: message, changes: changes))
         if gameLog.count > 10 {
             gameLog.removeFirst()
         }

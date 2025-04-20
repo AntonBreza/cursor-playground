@@ -3,6 +3,7 @@ import SwiftUI
 enum LogType {
     case move
     case collect
+    case energy
     case gameState
     
     var color: Color {
@@ -11,6 +12,8 @@ enum LogType {
             return .blue
         case .collect:
             return .green
+        case .energy:
+            return .orange
         case .gameState:
             return .primary
         }
@@ -22,22 +25,27 @@ enum LogType {
             return "figure.walk"
         case .collect:
             return "leaf.fill"
+        case .energy:
+            return "bolt.fill"
         case .gameState:
             return "info.circle"
         }
     }
 }
 
+struct LogChange {
+    let type: LogType
+    let value: Int
+}
+
 struct LogEntry: Identifiable, Equatable {
     let id = UUID()
     let message: String
-    let type: LogType
-    let value: Int?
+    let changes: [LogChange]
     
-    init(message: String, type: LogType, value: Int? = nil) {
+    init(message: String, changes: [LogChange] = []) {
         self.message = message
-        self.type = type
-        self.value = value
+        self.changes = changes
     }
     
     static func == (lhs: LogEntry, rhs: LogEntry) -> Bool {
