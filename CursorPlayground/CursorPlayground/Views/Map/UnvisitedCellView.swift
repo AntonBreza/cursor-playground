@@ -12,6 +12,11 @@ struct UnvisitedCellView: View {
                     .foregroundColor(.gray)
                     .font(.system(size: 24))
             )
-            .shadow(radius: 2)
+            .background(
+                Rectangle()
+                    .fill(Color.orange.opacity(0.05))
+                    .shadow(color: .orange.opacity(0.05), radius: 2, x: 0, y: 0)
+                    .padding(4)
+            )
     }
 } 
