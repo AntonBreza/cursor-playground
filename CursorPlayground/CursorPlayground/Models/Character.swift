@@ -7,6 +7,7 @@ class Character {
     private let visionRange: Int
     private let map: Map
     private let collectAction: CollectAction
+    private let moveAction: MoveAction
     
     init(startPosition: Position, initialEnergy: Int, map: Map, visionRange: Int = GameConstants.Character.defaultVisionRange) {
         self.position = startPosition
@@ -15,16 +16,15 @@ class Character {
         self.visionRange = visionRange
         self.resourcesCollected = 0
         self.collectAction = CollectAction(map: map)
+        self.moveAction = MoveAction(map: map)
     }
     
     func move(to newPosition: Position) -> ActionResult {
-        // Validate the move
-        guard canMove(to: newPosition) else {
-            return .empty()
-        }
+        // Update position first
+        updatePosition(newPosition)
         
-        // Execute the move
-        let moveResult = executeMove(to: newPosition)
+        // Execute move action
+        let moveResult = moveAction.execute(character: self)
         
         // Try to collect resources if possible
         let collectResult = tryCollectResources()
@@ -51,29 +51,13 @@ class Character {
         resourcesCollected += delta
     }
     
-    // MARK: - Movement Helpers
+    // MARK: - Position Helpers
     
-    private func canMove(to newPosition: Position) -> Bool {
-        guard map.cell(at: newPosition) != nil else {
-            return false
-        }
-        
-        return energy - GameConstants.Movement.energyCost >= 0
+    func isPositionAdjacent(_ position: Position) -> Bool {
+        return abs(position.x - self.position.x) <= 1 && abs(position.y - self.position.y) <= 1
     }
     
-    private func executeMove(to newPosition: Position) -> ActionResult {
-        // Update position and energy
-        updatePosition(newPosition)
-        updateEnergy(-GameConstants.Movement.energyCost)
-        
-        // Mark the new cell as visited
-        map.markCellAsVisited(at: newPosition)
-        
-        return ActionResult(changes: [
-            .init(type: .position, value: GameConstants.Movement.positionChange),
-            .init(type: .energy, value: -GameConstants.Movement.energyCost)
-        ])
-    }
+    // MARK: - Private Methods
     
     private func tryCollectResources() -> ActionResult {
         return collectAction.execute(character: self)
@@ -103,11 +87,5 @@ class Character {
         }
         
         return ActionResult(changes: allChanges)
-    }
-    
-    // MARK: - Position Helpers
-    
-    func isPositionAdjacent(_ position: Position) -> Bool {
-        return abs(position.x - self.position.x) <= 1 && abs(position.y - self.position.y) <= 1
     }
 } 
