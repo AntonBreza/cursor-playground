@@ -104,4 +104,10 @@ class Character {
         
         return ActionResult(changes: allChanges)
     }
+    
+    // MARK: - Position Helpers
+    
+    func isPositionAdjacent(_ position: Position) -> Bool {
+        return abs(position.x - self.position.x) <= 1 && abs(position.y - self.position.y) <= 1
+    }
 } 

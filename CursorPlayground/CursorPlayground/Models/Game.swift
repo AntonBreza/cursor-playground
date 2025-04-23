@@ -43,10 +43,7 @@ class Game: ObservableObject {
         guard !isGameOver else { return }
         
         // Check if the target position is adjacent to the current position
-        let currentPos = character.position
-        let isAdjacent = abs(position.x - currentPos.x) <= 1 && abs(position.y - currentPos.y) <= 1
-        
-        if isAdjacent {
+        if character.isPositionAdjacent(position) {
             let result = character.move(to: position)
             
             if !result.changes.isEmpty {
