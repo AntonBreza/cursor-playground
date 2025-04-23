@@ -15,7 +15,7 @@ class Game: ObservableObject {
         self.map = map
         self.character = Character(
             startPosition: Position(x: mapSize / 2, y: mapSize / 2),
-            initialEnergy: 1000,
+            initialEnergy: GameConstants.Character.initialEnergy,
             map: map
         )
         
@@ -32,7 +32,7 @@ class Game: ObservableObject {
         self.map = newMap
         self.character = Character(
             startPosition: Position(x: mapSize / 2, y: mapSize / 2),
-            initialEnergy: 1000,
+            initialEnergy: GameConstants.Character.initialEnergy,
             map: newMap
         )
         

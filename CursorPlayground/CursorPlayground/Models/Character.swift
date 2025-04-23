@@ -8,7 +8,7 @@ class Character {
     private let map: Map
     private let collectAction: CollectAction
     
-    init(startPosition: Position, initialEnergy: Int, map: Map, visionRange: Int = 2) {
+    init(startPosition: Position, initialEnergy: Int, map: Map, visionRange: Int = GameConstants.Character.defaultVisionRange) {
         self.position = startPosition
         self.energy = initialEnergy
         self.map = map
@@ -18,54 +18,19 @@ class Character {
     }
     
     func move(to newPosition: Position) -> ActionResult {
-        // First check if we can move to the new position
-        guard map.cell(at: newPosition) != nil else {
+        // Validate the move
+        guard canMove(to: newPosition) else {
             return .empty()
         }
         
-        // Calculate energy cost for movement
-        let energyCost = 5
-        if energy - energyCost < 0 {
-            return .empty()
-        }
+        // Execute the move
+        let moveResult = executeMove(to: newPosition)
         
-        // Update position and energy
-        updatePosition(newPosition)
-        updateEnergy(-energyCost)
+        // Try to collect resources if possible
+        let collectResult = tryCollectResources()
         
-        // Mark the new cell as visited
-        map.markCellAsVisited(at: newPosition)
-        
-        // Then evaluate if we can collect resources
-        let collectResult = collectAction.execute(character: self)
-        let totalCollectEnergyCost = collectResult.changes.filter { $0.type == .energy }.reduce(0) { $0 + $1.value }
-        
-        // If collecting would make energy negative, only apply move changes
-        if energy + totalCollectEnergyCost < 0 {
-            return ActionResult(changes: [
-                .init(type: .position, value: 1),
-                .init(type: .energy, value: -energyCost)
-            ])
-        }
-        
-        // Apply all changes from both actions
-        let allChanges = [
-            ActionResult.Change(type: .position, value: 1),
-            ActionResult.Change(type: .energy, value: -energyCost)
-        ] + collectResult.changes
-        
-        for change in collectResult.changes {
-            switch change.type {
-            case .energy:
-                energy += change.value
-            case .resources:
-                resourcesCollected += change.value
-            case .position, .health:
-                break
-            }
-        }
-        
-        return ActionResult(changes: allChanges)
+        // Combine and apply results
+        return combineResults(moveResult: moveResult, collectResult: collectResult)
     }
     
     var isAlive: Bool {
@@ -84,5 +49,59 @@ class Character {
     
     func updateResources(_ delta: Int) {
         resourcesCollected += delta
+    }
+    
+    // MARK: - Movement Helpers
+    
+    private func canMove(to newPosition: Position) -> Bool {
+        guard map.cell(at: newPosition) != nil else {
+            return false
+        }
+        
+        return energy - GameConstants.Movement.energyCost >= 0
+    }
+    
+    private func executeMove(to newPosition: Position) -> ActionResult {
+        // Update position and energy
+        updatePosition(newPosition)
+        updateEnergy(-GameConstants.Movement.energyCost)
+        
+        // Mark the new cell as visited
+        map.markCellAsVisited(at: newPosition)
+        
+        return ActionResult(changes: [
+            .init(type: .position, value: GameConstants.Movement.positionChange),
+            .init(type: .energy, value: -GameConstants.Movement.energyCost)
+        ])
+    }
+    
+    private func tryCollectResources() -> ActionResult {
+        return collectAction.execute(character: self)
+    }
+    
+    private func combineResults(moveResult: ActionResult, collectResult: ActionResult) -> ActionResult {
+        let totalCollectEnergyCost = collectResult.changes.filter { $0.type == .energy }.reduce(0) { $0 + $1.value }
+        
+        // If collecting would make energy negative, only apply move changes
+        if energy + totalCollectEnergyCost < 0 {
+            return moveResult
+        }
+        
+        // Apply all changes from both actions
+        let allChanges = moveResult.changes + collectResult.changes
+        
+        // Apply changes to character state
+        for change in collectResult.changes {
+            switch change.type {
+            case .energy:
+                energy += change.value
+            case .resources:
+                resourcesCollected += change.value
+            case .position, .health:
+                break
+            }
+        }
+        
+        return ActionResult(changes: allChanges)
     }
 } 

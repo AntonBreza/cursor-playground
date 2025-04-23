@@ -19,6 +19,20 @@ struct ActionResult {
     static func empty() -> ActionResult {
         ActionResult(changes: [])
     }
+    
+    static func move() -> ActionResult {
+        ActionResult(changes: [
+            .init(type: .position, value: GameConstants.Movement.positionChange),
+            .init(type: .energy, value: -GameConstants.Movement.energyCost)
+        ])
+    }
+    
+    static func collect() -> ActionResult {
+        ActionResult(changes: [
+            .init(type: .resources, value: GameConstants.Collection.resourceChange),
+            .init(type: .energy, value: -GameConstants.Collection.energyCost)
+        ])
+    }
 }
 
 protocol CharacterAction {
@@ -52,10 +66,7 @@ class MoveAction: CharacterAction {
         let newPosition = moveTowards(character: character, target: closestResource.position)
         character.updatePosition(newPosition)
         
-        return ActionResult(changes: [
-            .init(type: .position, value: 1),
-            .init(type: .energy, value: -5)
-        ])
+        return .move()
     }
     
     private func moveRandomly(character: Character) -> ActionResult {
@@ -82,10 +93,7 @@ class MoveAction: CharacterAction {
             )
             character.updatePosition(newPosition)
             
-            return ActionResult(changes: [
-                .init(type: .position, value: 1),
-                .init(type: .energy, value: -5)
-            ])
+            return .move()
         }
         
         return .empty()
@@ -123,10 +131,7 @@ class CollectAction: CharacterAction {
         if let currentCell = map.cell(at: character.position), currentCell.type == .resource {
             map.updateCell(at: character.position, type: .empty)
             
-            return ActionResult(changes: [
-                .init(type: .resources, value: 1),
-                .init(type: .energy, value: -1)
-            ])
+            return .collect()
         }
         return .empty()
     }
