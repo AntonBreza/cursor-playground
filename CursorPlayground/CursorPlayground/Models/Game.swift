@@ -7,7 +7,6 @@ class Game: ObservableObject {
     @Published private(set) var gameLog: [LogEntry] = []
     @Published private(set) var isGameOver = false
     
-    private var timer: Timer?
     private let mapSize: Int
     
     init(mapSize: Int = 100) {
@@ -23,17 +22,7 @@ class Game: ObservableObject {
         log("Game started", changes: [])
     }
     
-    func start() {
-        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            self?.update()
-        }
-    }
-    
     func restart() {
-        // Stop current game
-        timer?.invalidate()
-        timer = nil
-        
         // Reset game state
         isGameOver = false
         gameLog.removeAll()
@@ -48,52 +37,50 @@ class Game: ObservableObject {
         )
         
         log("Game restarted! Character energy: \(character.energy)", changes: [])
-        
-        // Start new game
-        start()
     }
     
-    private func update() {
+    func moveCharacter(to position: Position) {
         guard !isGameOver else { return }
         
-        let result = character.move()
+        // Check if the target position is adjacent to the current position
+        let currentPos = character.position
+        let isAdjacent = abs(position.x - currentPos.x) <= 1 && abs(position.y - currentPos.y) <= 1
         
-        if !result.changes.isEmpty {
-            var message = "Moved to (\(character.position.x), \(character.position.y))"
-            var changes: [LogChange] = []
+        if isAdjacent {
+            let result = character.move(to: position)
             
-            for change in result.changes {
-                switch change.type {
-                case .position:
-                    // Position is already in the message
-                    break
-                case .energy:
-                    changes.append(LogChange(type: .energy, value: change.value))
-                case .resources:
-                    message += " • Collected resource"
-                    changes.append(LogChange(type: .collect, value: change.value))
-                case .health:
-                    // Not implemented yet
-                    break
+            if !result.changes.isEmpty {
+                var message = "Moved to (\(character.position.x), \(character.position.y))"
+                var changes: [LogChange] = []
+                
+                for change in result.changes {
+                    switch change.type {
+                    case .position:
+                        // Position is already in the message
+                        break
+                    case .energy:
+                        changes.append(LogChange(type: .energy, value: change.value))
+                    case .resources:
+                        message += " • Collected resource"
+                        changes.append(LogChange(type: .collect, value: change.value))
+                    case .health:
+                        // Not implemented yet
+                        break
+                    }
                 }
+                
+                log(message, changes: changes)
             }
             
-            log(message, changes: changes)
-        } else {
-            log("No resources in range", changes: [])
-            endGame()
-        }
-        
-        if !character.isAlive {
-            log("Out of energy", changes: [])
-            endGame()
+            if !character.isAlive {
+                log("Out of energy", changes: [])
+                endGame()
+            }
         }
     }
     
     private func endGame() {
         isGameOver = true
-        timer?.invalidate()
-        timer = nil
         log("Final score: \(character.resourcesCollected)", changes: [])
     }
     

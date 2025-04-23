@@ -58,8 +58,5 @@ struct ContentView: View {
                 CharacterScreen(game: game)
             }
         }
-        .onAppear {
-            game.start()
-        }
     }
 }

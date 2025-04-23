@@ -6,7 +6,6 @@ class Character {
     private(set) var resourcesCollected: Int
     private let visionRange: Int
     private let map: Map
-    private let moveAction: MoveAction
     private let collectAction: CollectAction
     
     init(startPosition: Position, initialEnergy: Int, map: Map, visionRange: Int = 2) {
@@ -15,57 +14,53 @@ class Character {
         self.map = map
         self.visionRange = visionRange
         self.resourcesCollected = 0
-        self.moveAction = MoveAction(map: map, visionRange: visionRange)
         self.collectAction = CollectAction(map: map)
     }
     
-    func move() -> ActionResult {
-        // First evaluate if we can perform the move action
-        let moveResult = moveAction.execute(character: self)
-        let totalEnergyCost = moveResult.changes.filter { $0.type == .energy }.reduce(0) { $0 + $1.value }
-        
-        // If moving would make energy negative, don't move
-        if energy + totalEnergyCost < 0 {
+    func move(to newPosition: Position) -> ActionResult {
+        // First check if we can move to the new position
+        guard map.cell(at: newPosition) != nil else {
             return .empty()
         }
         
+        // Calculate energy cost for movement
+        let energyCost = 5
+        if energy - energyCost < 0 {
+            return .empty()
+        }
+        
+        // Update position and energy
+        updatePosition(newPosition)
+        updateEnergy(-energyCost)
+        
         // Mark the new cell as visited
-        map.markCellAsVisited(at: position)
+        map.markCellAsVisited(at: newPosition)
         
         // Then evaluate if we can collect resources
         let collectResult = collectAction.execute(character: self)
         let totalCollectEnergyCost = collectResult.changes.filter { $0.type == .energy }.reduce(0) { $0 + $1.value }
         
         // If collecting would make energy negative, only apply move changes
-        if energy + totalEnergyCost + totalCollectEnergyCost < 0 {
-            // Apply only move changes
-            for change in moveResult.changes {
-                switch change.type {
-                case .position:
-                    // Position is already updated by the action
-                    break
-                case .energy:
-                    energy += change.value
-                case .resources, .health:
-                    break
-                }
-            }
-            return moveResult
+        if energy + totalCollectEnergyCost < 0 {
+            return ActionResult(changes: [
+                .init(type: .position, value: 1),
+                .init(type: .energy, value: -energyCost)
+            ])
         }
         
         // Apply all changes from both actions
-        let allChanges = moveResult.changes + collectResult.changes
-        for change in allChanges {
+        let allChanges = [
+            ActionResult.Change(type: .position, value: 1),
+            ActionResult.Change(type: .energy, value: -energyCost)
+        ] + collectResult.changes
+        
+        for change in collectResult.changes {
             switch change.type {
-            case .position:
-                // Position is already updated by the actions
-                break
             case .energy:
                 energy += change.value
             case .resources:
                 resourcesCollected += change.value
-            case .health:
-                // Not implemented yet
+            case .position, .health:
                 break
             }
         }

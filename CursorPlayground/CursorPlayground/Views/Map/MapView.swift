@@ -32,6 +32,9 @@ struct MapView: View {
                                             isPlayerCell: x == game.character.position.x && y == game.character.position.y
                                         )
                                         .id("\(x),\(y)")
+                                        .onTapGesture {
+                                            game.moveCharacter(to: Position(x: x, y: y))
+                                        }
                                     }
                                 }
                             }
@@ -49,7 +52,11 @@ struct MapView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .clipped()
                 .onChange(of: game.character.position) { newPosition in
-                    scrollProxy.scrollTo("\(newPosition.x),\(newPosition.y)", anchor: .center)
+                    DispatchQueue.main.async {
+                        withAnimation(.easeInOut(duration: 0.8)) {
+                            scrollProxy.scrollTo("\(newPosition.x),\(newPosition.y)", anchor: .center)
+                        }
+                    }
                 }
             }
         }
