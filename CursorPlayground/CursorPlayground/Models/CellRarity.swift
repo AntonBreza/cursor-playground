@@ -23,18 +23,7 @@ enum CellRarity: CaseIterable {
     }
     
     var borderWidth: CGFloat {
-        switch self {
-        case .common:
-            return 1
-        case .uncommon:
-            return 1.5
-        case .rare:
-            return 2
-        case .epic:
-            return 2.5
-        case .legendary:
-            return 3
-        }
+        return 1.5
     }
 }
 

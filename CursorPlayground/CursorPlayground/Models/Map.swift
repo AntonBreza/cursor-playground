@@ -24,7 +24,7 @@ class Map {
         return cells[position.y][position.x]
     }
     
-    func updateCell(at position: Position, type: CellType, backgroundColor: Color = .clear) {
+    func updateCell(at position: Position, type: CellType) {
         guard position.x >= 0 && position.x < size && position.y >= 0 && position.y < size else {
             return
         }
@@ -32,7 +32,6 @@ class Map {
         cells[position.y][position.x] = Cell(
             position: position,
             type: type,
-            backgroundColor: backgroundColor,
             isVisited: isVisited
         )
     }
