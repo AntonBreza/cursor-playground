@@ -8,8 +8,6 @@ class Map {
     init(size: Int) {
         self.size = size
         self.cells = Array(repeating: Array(repeating: Cell(position: Position(x: 0, y: 0)), count: size), count: size)
-        
-        // Initialize cells with proper positions
         for y in 0..<size {
             for x in 0..<size {
                 cells[y][x] = Cell(position: Position(x: x, y: y))

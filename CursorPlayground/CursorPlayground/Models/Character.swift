@@ -20,24 +20,15 @@ class Character {
     }
     
     func move(to newPosition: Position) -> ActionResult {
-        // Update position first
         updatePosition(newPosition)
-        
-        // Execute move action
         let moveResult = moveAction.execute(character: self)
-        
-        // Try to collect resources if possible
         let collectResult = tryCollectResources()
-        
-        // Combine and apply results
         return combineResults(moveResult: moveResult, collectResult: collectResult)
     }
     
     var isAlive: Bool {
         return energy > 0
     }
-    
-    // MARK: - Property Modifiers
     
     func updatePosition(_ newPosition: Position) {
         position = newPosition
@@ -51,13 +42,9 @@ class Character {
         resourcesCollected += delta
     }
     
-    // MARK: - Position Helpers
-    
     func isPositionAdjacent(_ position: Position) -> Bool {
         return abs(position.x - self.position.x) <= 1 && abs(position.y - self.position.y) <= 1
     }
-    
-    // MARK: - Private Methods
     
     private func tryCollectResources() -> ActionResult {
         return collectAction.execute(character: self)
@@ -65,16 +52,10 @@ class Character {
     
     private func combineResults(moveResult: ActionResult, collectResult: ActionResult) -> ActionResult {
         let totalCollectEnergyCost = collectResult.changes.filter { $0.type == .energy }.reduce(0) { $0 + $1.value }
-        
-        // If collecting would make energy negative, only apply move changes
         if energy + totalCollectEnergyCost < 0 {
             return moveResult
         }
-        
-        // Apply all changes from both actions
         let allChanges = moveResult.changes + collectResult.changes
-        
-        // Apply changes to character state
         for change in collectResult.changes {
             switch change.type {
             case .energy:
@@ -85,7 +66,6 @@ class Character {
                 break
             }
         }
-        
         return ActionResult(changes: allChanges)
     }
 } 

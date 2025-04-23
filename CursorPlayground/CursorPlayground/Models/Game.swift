@@ -18,16 +18,12 @@ class Game: ObservableObject {
             initialEnergy: GameConstants.Character.initialEnergy,
             map: map
         )
-        
         log("Game started", changes: [])
     }
     
     func restart() {
-        // Reset game state
         isGameOver = false
         gameLog.removeAll()
-        
-        // Generate new map and character
         let newMap = MapGenerator.generateMap(size: mapSize)
         self.map = newMap
         self.character = Character(
@@ -35,25 +31,19 @@ class Game: ObservableObject {
             initialEnergy: GameConstants.Character.initialEnergy,
             map: newMap
         )
-        
         log("Game restarted! Character energy: \(character.energy)", changes: [])
     }
     
     func moveCharacter(to position: Position) {
         guard !isGameOver else { return }
-        
-        // Check if the target position is adjacent to the current position
         if character.isPositionAdjacent(position) {
             let result = character.move(to: position)
-            
             if !result.changes.isEmpty {
                 var message = "Moved to (\(character.position.x), \(character.position.y))"
                 var changes: [LogChange] = []
-                
                 for change in result.changes {
                     switch change.type {
                     case .position:
-                        // Position is already in the message
                         break
                     case .energy:
                         changes.append(LogChange(type: .energy, value: change.value))
@@ -61,14 +51,11 @@ class Game: ObservableObject {
                         message += " • Collected resource"
                         changes.append(LogChange(type: .collect, value: change.value))
                     case .health:
-                        // Not implemented yet
                         break
                     }
                 }
-                
                 log(message, changes: changes)
             }
-            
             if !character.isAlive {
                 log("Out of energy", changes: [])
                 endGame()
